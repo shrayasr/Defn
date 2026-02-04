@@ -80,6 +80,11 @@
       resize: vertical;
     }
 
+    .button-row {
+      display: flex;
+      gap: 10px;
+    }
+
     button {
       font-family: inherit;
       font-size: 1rem;
@@ -93,6 +98,16 @@
 
     button:hover {
       background: #7a6347;
+    }
+
+    #clearBtn {
+      background: transparent;
+      color: #5c4a32;
+      border: 1px solid #5c4a32;
+    }
+
+    #clearBtn:hover {
+      background: rgba(92, 74, 50, 0.1);
     }
 
     /* Definition output */
@@ -208,6 +223,10 @@
         padding: 18px;
       }
 
+      .button-row {
+        flex-direction: column;
+      }
+
       button {
         width: 100%;
         padding: 14px 25px;
@@ -275,7 +294,10 @@
       <textarea id="examples" placeholder="I'm so stresstrated right now.&#10;This project has me completely stresstrated."></textarea>
     </div>
 
-    <button type="submit">Generate</button>
+    <div class="button-row">
+      <button type="submit">Generate</button>
+      <button type="button" id="clearBtn">Clear</button>
+    </div>
   </form>
 
   <div id="output">
@@ -342,6 +364,16 @@
     document.getElementById('defForm').addEventListener('submit', function(e) {
       e.preventDefault();
       generateDefinition();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', function() {
+      document.getElementById('word').value = '';
+      document.getElementById('wordType').value = '';
+      document.getElementById('definitions').value = '';
+      document.getElementById('examples').value = '';
+      document.getElementById('output').classList.remove('visible');
+      history.replaceState(null, '', window.location.pathname);
+      document.getElementById('word').focus();
     });
 
     // Load from URL on page load
