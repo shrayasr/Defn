@@ -1,5 +1,8 @@
 # defn
 
+> [!NOTE]
+> This was vibe coded with Claude Code
+
 Your inside jokes, officially defined.
 
 A simple static site that generates dictionary-style definitions for made-up words. No build step, no dependencies to install — just open the HTML file.
