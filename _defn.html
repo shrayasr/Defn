@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Definition Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -72,13 +74,19 @@
     /* Definition output */
     #output {
       margin-top: 50px;
+      padding: 20px;
+      padding-top: 0;
+      background: #f5f0e6;
+      display: none;
+    }
+
+    #outputContent {
       padding: 30px;
       background: #fdfbf7;
       border: 2px solid #8b7355;
       box-shadow:
         inset 0 0 30px rgba(139, 115, 85, 0.1),
         3px 3px 8px rgba(0, 0, 0, 0.15);
-      display: none;
     }
 
     #output.visible {
@@ -137,6 +145,11 @@
     .examples p::after {
       content: '"';
     }
+
+    #copyBtn {
+      margin-top: 20px;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -167,23 +180,27 @@
   </form>
 
   <div id="output">
-    <p class="def-word" id="outWord"></p>
-    <p class="def-type" id="outType"></p>
-    <ol class="def-list" id="outDefs"></ol>
-    <div id="outExamples" class="examples"></div>
+    <div id="outputContent">
+      <p class="def-word" id="outWord"></p>
+      <p class="def-type" id="outType"></p>
+      <ol class="def-list" id="outDefs"></ol>
+      <div id="outExamples" class="examples"></div>
+    </div>
+    <button type="button" id="copyBtn">Copy as image</button>
   </div>
 
   <script>
-    document.getElementById('defForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-
+    function generateDefinition() {
       const word = document.getElementById('word').value.trim();
       const wordType = document.getElementById('wordType').value.trim();
-      const definitions = document.getElementById('definitions').value
+      const definitionsRaw = document.getElementById('definitions').value;
+      const examplesRaw = document.getElementById('examples').value;
+
+      const definitions = definitionsRaw
         .split('\n')
         .map(d => d.trim())
         .filter(d => d.length > 0);
-      const examples = document.getElementById('examples').value
+      const examples = examplesRaw
         .split('\n')
         .map(e => e.trim())
         .filter(e => e.length > 0);
@@ -216,6 +233,59 @@
       }
 
       document.getElementById('output').classList.add('visible');
+
+      // Update URL with compressed data
+      const data = { w: word, t: wordType, d: definitionsRaw.trim(), e: examplesRaw.trim() };
+      const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(data));
+      history.replaceState(null, '', '?v=' + compressed);
+    }
+
+    document.getElementById('defForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      generateDefinition();
+    });
+
+    // Load from URL on page load
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('v')) {
+        try {
+          const data = JSON.parse(LZString.decompressFromEncodedURIComponent(params.get('v')));
+          document.getElementById('word').value = data.w || '';
+          document.getElementById('wordType').value = data.t || '';
+          document.getElementById('definitions').value = data.d || '';
+          document.getElementById('examples').value = data.e || '';
+          generateDefinition();
+        } catch (e) {}
+      }
+    })();
+
+    document.getElementById('copyBtn').addEventListener('click', async function() {
+      const btn = this;
+      const content = document.getElementById('outputContent');
+
+      try {
+        const canvas = await html2canvas(content, {
+          backgroundColor: '#fdfbf7',
+          scale: 2
+        });
+
+        canvas.toBlob(async (blob) => {
+          try {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob })
+            ]);
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy as image', 2000);
+          } catch (err) {
+            btn.textContent = 'Failed to copy';
+            setTimeout(() => btn.textContent = 'Copy as image', 2000);
+          }
+        }, 'image/png');
+      } catch (err) {
+        btn.textContent = 'Failed to capture';
+        setTimeout(() => btn.textContent = 'Copy as image', 2000);
+      }
     });
   </script>
 </body>
