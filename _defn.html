@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Definition Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #f5f0e6;
+      color: #2c2416;
+      line-height: 1.6;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: normal;
+      margin-bottom: 30px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #c4b69c;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+      color: #6b5a42;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 1rem;
+      border: 1px solid #c4b69c;
+      border-radius: 3px;
+      background: #fdfbf7;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 10px 25px;
+      background: #5c4a32;
+      color: #f5f0e6;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #7a6347;
+    }
+
+    /* Definition output */
+    #output {
+      margin-top: 50px;
+      padding: 30px;
+      background: #fdfbf7;
+      border: 2px solid #8b7355;
+      box-shadow:
+        inset 0 0 30px rgba(139, 115, 85, 0.1),
+        3px 3px 8px rgba(0, 0, 0, 0.15);
+      display: none;
+    }
+
+    #output.visible {
+      display: block;
+    }
+
+    .def-word {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 0 0 5px 0;
+    }
+
+    .def-type {
+      font-style: italic;
+      color: #6b5a42;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .def-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .def-list li {
+      margin-bottom: 12px;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    .def-list li::before {
+      content: attr(data-num);
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .examples {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #c4b69c;
+    }
+
+    .examples p {
+      margin: 8px 0;
+      font-style: italic;
+      color: #5c4a32;
+    }
+
+    .examples p::before {
+      content: '"';
+    }
+
+    .examples p::after {
+      content: '"';
+    }
+  </style>
+</head>
+<body>
+  <h1>Definition Generator</h1>
+
+  <form id="defForm">
+    <div class="form-group">
+      <label for="word">Word</label>
+      <input type="text" id="word" placeholder="Stresstrated" required>
+    </div>
+
+    <div class="form-group">
+      <label for="wordType">Type</label>
+      <input type="text" id="wordType" placeholder="noun">
+    </div>
+
+    <div class="form-group">
+      <label for="definitions">Definitions (one per line)</label>
+      <textarea id="definitions" placeholder="When your feelings of frustration cause stress&#10;When your stress makes you frustrated" required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="examples">Example usage (one per line, optional)</label>
+      <textarea id="examples" placeholder="I'm so stresstrated right now.&#10;This project has me completely stresstrated."></textarea>
+    </div>
+
+    <button type="submit">Generate</button>
+  </form>
+
+  <div id="output">
+    <p class="def-word" id="outWord"></p>
+    <p class="def-type" id="outType"></p>
+    <ol class="def-list" id="outDefs"></ol>
+    <div id="outExamples" class="examples"></div>
+  </div>
+
+  <script>
+    document.getElementById('defForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const word = document.getElementById('word').value.trim();
+      const wordType = document.getElementById('wordType').value.trim();
+      const definitions = document.getElementById('definitions').value
+        .split('\n')
+        .map(d => d.trim())
+        .filter(d => d.length > 0);
+      const examples = document.getElementById('examples').value
+        .split('\n')
+        .map(e => e.trim())
+        .filter(e => e.length > 0);
+
+      document.getElementById('outWord').textContent = word;
+      document.getElementById('outType').textContent = wordType;
+
+      const defList = document.getElementById('outDefs');
+      defList.innerHTML = '';
+
+      definitions.forEach((def, i) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-num', (i + 1) + '.');
+        li.textContent = def;
+        defList.appendChild(li);
+      });
+
+      const examplesDiv = document.getElementById('outExamples');
+      examplesDiv.innerHTML = '';
+
+      if (examples.length > 0) {
+        examples.forEach(ex => {
+          const p = document.createElement('p');
+          p.textContent = ex;
+          examplesDiv.appendChild(p);
+        });
+        examplesDiv.style.display = 'block';
+      } else {
+        examplesDiv.style.display = 'none';
+      }
+
+      document.getElementById('output').classList.add('visible');
+    });
+  </script>
+</body>
+</html>
