@@ -5,6 +5,8 @@
 
 Your inside jokes, officially defined.
 
+![defn](https://shrayas.com/images/_defn/og-image.jpg)
+
 A simple static site that generates dictionary-style definitions for made-up words. No build step, no dependencies to install — just open the HTML file.
 
 ## Features
