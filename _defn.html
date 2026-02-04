@@ -24,8 +24,16 @@
     h1 {
       font-size: 1.5rem;
       font-weight: normal;
-      margin-bottom: 30px;
-      padding-bottom: 10px;
+      margin-bottom: 8px;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .tagline {
+      font-style: italic;
+      color: #8b7355;
+      margin: 0 0 30px 0;
+      padding-bottom: 15px;
       border-bottom: 1px solid #c4b69c;
     }
 
@@ -154,6 +162,7 @@
 </head>
 <body>
   <h1>Definition Generator</h1>
+  <p class="tagline" id="tagline"></p>
 
   <form id="defForm">
     <div class="form-group">
@@ -247,6 +256,15 @@
 
     // Load from URL on page load
     (function() {
+      // Random tagline
+      const taglines = [
+        'Give your inside jokes the gravitas they deserve.',
+        'Define your nonsense.',
+        'Because every dumb joke deserves a dictionary entry.'
+      ];
+      document.getElementById('tagline').textContent = taglines[Math.floor(Math.random() * taglines.length)];
+
+      // Load from URL params
       const params = new URLSearchParams(window.location.search);
       if (params.has('v')) {
         try {
